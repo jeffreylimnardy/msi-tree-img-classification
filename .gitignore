@@ -1,0 +1,7 @@
+data-science-eo-regression
+data-science-eo-segmentation
+.vscode
+__pycache__
+.git
+raw_dataset
+assets/dataset.npy
