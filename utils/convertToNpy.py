@@ -3,6 +3,7 @@ import numpy as np
 import os
 import pandas as pd
 
+# read raw geojson files and combine them into a geodataframe with geopandas
 geojson_files = os.listdir("./raw_dataset")
 
 geojson_path = list(map(lambda x: os.path.join(
@@ -10,61 +11,44 @@ geojson_path = list(map(lambda x: os.path.join(
 
 gdf_list = []
 
-for i in range(len(geojson_path)-1):
+for i in range(len(geojson_path)):
     try:
         gdf = gpd.read_file(geojson_path[i])
         gdf['tree_species'] = geojson_files[i][:-13]
+        print(gdf)
         gdf_list.append(gdf)
     except:
         print(geojson_path[i] + " is not a valid geojson file.")
+        os.remove(geojson_path[i])
 
 combined = gpd.GeoDataFrame(pd.concat(gdf_list, ignore_index=True))
 
-combined.drop(["geometry"], axis=1, inplace=True)
-combined.dropna(inplace=True)
-
-set_of_cols = ["B11", "B12", "B2", "B3", "B4",
-               "B5", "B6", "B7", "B8", "B8A", "tree_species"]
-set_of_cols_summer = list(
-    map(lambda x: x + "_1" if x != "tree_species" else x, set_of_cols))
-set_of_cols_autumn = list(
-    map(lambda x: x + "_2" if x != "tree_species" else x, set_of_cols))
-
-spring_data = combined[set_of_cols]
-
-summer_data = combined[set_of_cols_summer]
-
-autumn_data = combined[set_of_cols_autumn]
-
-summer_column_mapping = {old_col: new_col for old_col,
-                         new_col in zip(summer_data, spring_data)}
-autumn_column_mapping = {old_col: new_col for old_col,
-                         new_col in zip(autumn_data, spring_data)}
-
-summer_data = summer_data.rename(columns=summer_column_mapping)
-autumn_data = autumn_data.rename(columns=autumn_column_mapping)
-
-split_seasons = pd.concat(
-    [spring_data, summer_data, autumn_data], ignore_index=True)
-
-group_count = split_seasons.groupby(['tree_species']).size()
+group_count = combined.groupby(['tree_species']).size()
 
 group_count.sort_values(ascending=False, inplace=True)
 
-filtered_group_count = group_count.loc[lambda x: x > 1200]
+print(group_count)
 
-print(filtered_group_count)
 
-filter = list(filtered_group_count.index)
+# drop geometry column since empty and not useful
+combined.drop(["geometry"], axis=1, inplace=True)
 
-print(filter)
+# drop na to clean dataset
+combined.dropna(inplace=True)
 
-filtered_dataset = split_seasons[split_seasons['tree_species'].isin(filter)]
+print(combined.dtypes)
 
-print(filtered_dataset)
+print(combined)
 
-data_array = filtered_dataset.to_numpy()
+group_count = combined.groupby(['tree_species']).size()
 
-data_csv = filtered_dataset.to_excel("test.xlsx")
+group_count.sort_values(ascending=False, inplace=True)
 
-np.save('assets/dataset.npy', data_array)
+print(group_count)
+
+
+data_array = combined.to_numpy()
+
+data_csv = combined.to_excel("test.xlsx")
+
+np.save('assets/dataset_30bands.npy', data_array)

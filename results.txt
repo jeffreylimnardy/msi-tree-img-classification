@@ -1,0 +1,14 @@
+4 layers fc --> scheduler ReduceLRonPlateau (0.1 factor), optim Adam (0.0001) 100 epochs
+    21 % accuracy 
+    21 % micro f1
+    19 % weighted f1
+
+Resnet modified --> scheduler CyclicLR 0.0001 to 0.000001, optim Adam (0.0001) 100 epochs
+    12 % accuracy
+    12 % micro f1
+    13 % weighted f1
+
+Resnet extended -->  scheduler CyclicLR 0.0001 to 0.000001, optim Adam (0.0001) 100 epochs
+    13 % accuracy
+    13.72 % micro f1
+    14.77 % weighted f1

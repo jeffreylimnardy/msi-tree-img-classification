@@ -5,3 +5,10 @@ __pycache__
 .git
 raw_dataset
 assets/dataset.npy
+runs
+best_model
+categories.json
+outputs
+assets/dataset_30bands.npy
+utils/__pycache__
+assets/tabular_data.xlsx
